@@ -1,8 +1,9 @@
-import { FaRegCircle, FaRegSquare } from "react-icons/fa6";
+import { FaRegCircle, FaRegSquare, FaPencil } from "react-icons/fa6";
 import { FaLongArrowAltRight, FaRegHandPaper } from "react-icons/fa";
 import { GoDash } from "react-icons/go";
 import { CiText, CiImageOn } from "react-icons/ci";
 import { LuEraser } from "react-icons/lu";
+import { GiArrowCursor } from "react-icons/gi";
 
 export const icons = [
   {
@@ -11,8 +12,19 @@ export const icons = [
     title: "Hand (Panning Tool)",
     cursor: "grab",
   },
+  {
+    id: "selection",
+    icon: <GiArrowCursor />,
+    title: "Selection",
+    cursor: "default",
+  },
   { id: "circle", icon: <FaRegCircle />, title: "Circle", cursor: "crosshair" },
-  { id: "square", icon: <FaRegSquare />, title: "Square", cursor: "crosshair" },
+  {
+    id: "rectangle",
+    icon: <FaRegSquare />,
+    title: "Rectangle",
+    cursor: "crosshair",
+  },
   {
     id: "arrow-right",
     icon: <FaLongArrowAltRight />,
@@ -27,5 +39,16 @@ export const icons = [
     title: "Insert Image",
     cursor: "pointer",
   },
-  { id: "eraser", icon: <LuEraser />, title: "Eraser", cursor: "pointer" },
+  {
+    id: "pencil",
+    icon: <FaPencil />,
+    title: "Pencil",
+    cursor: `url(/pencil.png), auto`,
+  },
+  {
+    id: "eraser",
+    icon: <LuEraser />,
+    title: "Eraser",
+    cursor: `url(/eraser.png), auto`,
+  },
 ];

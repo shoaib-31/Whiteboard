@@ -31,6 +31,7 @@ const RectangularComponent = styled.div`
   width: fit-content;
   z-index: 10;
   padding: 0.5rem;
+  background-color: white;
   height: fit-content;
   display: flex;
   margin-top: 1rem;
