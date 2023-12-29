@@ -1,4 +1,13 @@
-import { Stage, Layer, Rect, Ellipse, Line, Image, Arrow } from "react-konva";
+import {
+  Stage,
+  Layer,
+  Rect,
+  Ellipse,
+  Line,
+  Image,
+  Arrow,
+  Transformer,
+} from "react-konva";
 import { useGlobalState } from "../hooks/useGlobalState";
 import { useEffect, useRef, useState } from "react";
 import useLocalStorageState from "use-local-storage-state";
@@ -15,6 +24,7 @@ import {
   handleMouseUpElement,
   handleDragEndElement,
   handleDragStartElement,
+  handleTransformer,
 } from "../events/elementEvents";
 import Konva from "konva";
 
@@ -120,6 +130,7 @@ function Canvas() {
       reader.readAsDataURL(file);
     }
   };
+  const [isSelected, setIsSelected] = useState(null);
 
   return (
     <>
@@ -127,6 +138,9 @@ function Canvas() {
       <Stage
         ref={stageRef}
         width={window.innerWidth * 2}
+        onClick={(e) => {
+          if (e.target == e.target.getStage()) setIsSelected(null);
+        }}
         onMouseEnter={() => handleMouseEnter(stageRef, state)}
         onMouseLeave={() => handleMouseLeave(stageRef)}
         height={window.innerHeight * 2}
@@ -177,6 +191,7 @@ function Canvas() {
                   fill={shape.fill || "transparent"}
                   cornerRadius={shape.cornerRadius || 10}
                   width={shape.width}
+                  rotation={shape.rotation || 0}
                   height={shape.height}
                   draggable={
                     state.active === "selection" ||
@@ -188,6 +203,23 @@ function Canvas() {
                   onDragEnd={(e) =>
                     handleDragEndElement(e, i, shapes, setShapes)
                   }
+                  onClick={(e) => handleTransformer(e, setIsSelected, state)}
+                  onTransformEnd={() => {
+                    const node = isSelected;
+                    const scaleX = node.scaleX();
+                    const scaleY = node.scaleY();
+                    const rotation = node.rotation();
+
+                    node.scaleX(1);
+                    node.scaleY(1);
+                    const updatedShapes = shapes;
+                    updatedShapes[i].x = node.x();
+                    updatedShapes[i].y = node.y();
+                    updatedShapes[i].width = Math.max(5, node.width() * scaleX);
+                    updatedShapes[i].height = Math.max(node.height() * scaleY);
+                    updatedShapes[i].rotation = rotation;
+                    setShapes(updatedShapes);
+                  }}
                 />
               );
             } else if (shape.name === "ellipse") {
@@ -196,6 +228,7 @@ function Canvas() {
                   key={i}
                   x={shape.x + shape.width / 2}
                   y={shape.y + shape.height / 2}
+                  rotation={shape.rotation || 0}
                   stroke={shape.stroke || "black"}
                   strokeWidth={shape.strokeWidth || 2}
                   fill={shape.fill || "transparent"}
@@ -212,6 +245,23 @@ function Canvas() {
                   onDragEnd={(e) =>
                     handleDragEndElement(e, i, shapes, setShapes)
                   }
+                  onClick={(e) => handleTransformer(e, setIsSelected, state)}
+                  onTransformEnd={() => {
+                    const node = isSelected;
+                    const scaleX = node.scaleX();
+                    const scaleY = node.scaleY();
+                    const rotation = node.rotation();
+
+                    node.scaleX(1);
+                    node.scaleY(1);
+                    const updatedShapes = shapes;
+                    updatedShapes[i].x = node.x();
+                    updatedShapes[i].y = node.y();
+                    updatedShapes[i].width = Math.max(5, node.width() * scaleX);
+                    updatedShapes[i].height = Math.max(node.height() * scaleY);
+                    updatedShapes[i].rotation = rotation;
+                    setShapes(updatedShapes);
+                  }}
                 />
               );
             } else if (shape.name === "line") {
@@ -221,6 +271,7 @@ function Canvas() {
                   y={shape.y}
                   key={i}
                   points={shape.points}
+                  rotation={shape.rotation || 0}
                   stroke={shape.stroke || "black"}
                   strokeWidth={shape.strokeWidth || 2}
                   fill={shape.fill || "transparent"}
@@ -234,6 +285,23 @@ function Canvas() {
                   onDragEnd={(e) =>
                     handleDragEndElement(e, i, shapes, setShapes)
                   }
+                  onClick={(e) => handleTransformer(e, setIsSelected, state)}
+                  onTransformEnd={() => {
+                    const node = isSelected;
+                    const scaleX = node.scaleX();
+                    const scaleY = node.scaleY();
+                    const rotation = node.rotation();
+
+                    node.scaleX(1);
+                    node.scaleY(1);
+                    const updatedShapes = shapes;
+                    updatedShapes[i].x = node.x();
+                    updatedShapes[i].y = node.y();
+                    updatedShapes[i].width = Math.max(5, node.width() * scaleX);
+                    updatedShapes[i].height = Math.max(node.height() * scaleY);
+                    updatedShapes[i].rotation = rotation;
+                    setShapes(updatedShapes);
+                  }}
                 />
               );
             } else if (shape.name === "arrow") {
@@ -242,6 +310,7 @@ function Canvas() {
                   x={shape.x}
                   y={shape.y}
                   key={i}
+                  rotation={shape.rotation || 0}
                   points={shape.points}
                   stroke={shape.stroke || "black"}
                   strokeWidth={shape.strokeWidth || 2}
@@ -257,6 +326,23 @@ function Canvas() {
                   onMouseUp={() => handleMouseUpElement(stageRef, state)}
                   onMouseDown={() => handleMouseDownElement(stageRef, state)}
                   onMouseEnter={() => handleMouseEnterElement(stageRef, state)}
+                  onClick={(e) => handleTransformer(e, setIsSelected, state)}
+                  onTransformEnd={() => {
+                    const node = isSelected;
+                    const scaleX = node.scaleX();
+                    const scaleY = node.scaleY();
+                    const rotation = node.rotation();
+
+                    node.scaleX(1);
+                    node.scaleY(1);
+                    const updatedShapes = shapes;
+                    updatedShapes[i].x = node.x();
+                    updatedShapes[i].y = node.y();
+                    updatedShapes[i].width = Math.max(5, node.width() * scaleX);
+                    updatedShapes[i].height = Math.max(node.height() * scaleY);
+                    updatedShapes[i].rotation = rotation;
+                    setShapes(updatedShapes);
+                  }}
                 />
               );
             } else if (shape.name === "pencil") {
@@ -266,6 +352,7 @@ function Canvas() {
                   y={shape.y}
                   points={shape.points}
                   key={i}
+                  rotation={shape.rotation || 0}
                   stroke={shape.stroke || "black"}
                   strokeWidth={shape.strokeWidth || 2}
                   draggable={
@@ -279,6 +366,23 @@ function Canvas() {
                   onMouseUp={() => handleMouseUpElement(stageRef, state)}
                   onMouseDown={() => handleMouseDownElement(stageRef, state)}
                   onMouseEnter={() => handleMouseEnterElement(stageRef, state)}
+                  onClick={(e) => handleTransformer(e, setIsSelected, state)}
+                  onTransformEnd={() => {
+                    const node = isSelected;
+                    const scaleX = node.scaleX();
+                    const scaleY = node.scaleY();
+                    const rotation = node.rotation();
+
+                    node.scaleX(1);
+                    node.scaleY(1);
+                    const updatedShapes = shapes;
+                    updatedShapes[i].x = node.x();
+                    updatedShapes[i].y = node.y();
+                    updatedShapes[i].width = Math.max(5, node.width() * scaleX);
+                    updatedShapes[i].height = Math.max(node.height() * scaleY);
+                    updatedShapes[i].rotation = rotation;
+                    setShapes(updatedShapes);
+                  }}
                 />
               );
             } else if (shape.name === "image") {
@@ -290,6 +394,7 @@ function Canvas() {
                   image={img}
                   x={shape.x}
                   y={shape.y}
+                  rotation={shape.rotation || 0}
                   width={shape.width}
                   height={shape.height}
                   draggable={
@@ -301,10 +406,45 @@ function Canvas() {
                   }
                   onMouseUp={() => handleMouseUpElement(stageRef, state)}
                   onMouseDown={() => handleMouseDownElement(stageRef, state)}
+                  onClick={(e) => handleTransformer(e, setIsSelected, state)}
+                  onTransformEnd={() => {
+                    const node = isSelected;
+                    const scaleX = node.scaleX();
+                    const scaleY = node.scaleY();
+                    const rotation = node.rotation();
+
+                    node.scaleX(1);
+                    node.scaleY(1);
+                    const updatedShapes = shapes;
+                    updatedShapes[i].x = node.x();
+                    updatedShapes[i].y = node.y();
+                    updatedShapes[i].width = Math.max(5, node.width() * scaleX);
+                    updatedShapes[i].height = Math.max(node.height() * scaleY);
+                    updatedShapes[i].rotation = rotation;
+                    setShapes(updatedShapes);
+                  }}
                 />
               );
             }
           })}
+          {isSelected && (
+            <Transformer
+              anchorCornerRadius={5}
+              rotateAnchorOffset={30}
+              padding={0}
+              keepRatio={false}
+              boundBoxFunc={(oldBox, newBox) => {
+                if (
+                  Math.abs(newBox.width) < 10 ||
+                  Math.abs(newBox.height) < 10
+                ) {
+                  return oldBox;
+                }
+                return newBox;
+              }}
+              node={isSelected}
+            />
+          )}
           {tempShapes && tempShapes.name === "rectangle" ? (
             <Rect
               x={tempShapes.x}

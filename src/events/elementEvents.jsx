@@ -71,3 +71,8 @@ export const handleDragStartElement = (e, setInitialPos) => {
     setInitialPos({ x: e.target.x(), y: e.target.y() });
   }
 };
+export const handleTransformer = (e, setIsSelected, state) => {
+  if (state.active === "hand-paper") {
+    setIsSelected(e.target);
+  }
+};
