@@ -26,7 +26,7 @@ const TopPanel = () => {
 export default TopPanel;
 
 const RectangularComponent = styled.div`
-  position: absolute;
+  position: fixed;
   margin: auto;
   width: fit-content;
   z-index: 10;

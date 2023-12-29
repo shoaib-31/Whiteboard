@@ -4,7 +4,12 @@ import { useGlobalState } from "../hooks/useGlobalState";
 const PanelElement = ({ id, icon, title }) => {
   const { state, dispatch } = useGlobalState();
   const handleClick = () => {
-    dispatch({ type: "updateActive", payload: { active: id } });
+    if (id == "image") {
+      document.getElementById("imageUpload").click();
+      dispatch({ type: "updateActive", payload: { active: "hand-paper" } });
+    } else {
+      dispatch({ type: "updateActive", payload: { active: id } });
+    }
   };
   return (
     <SquareContainer

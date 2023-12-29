@@ -18,7 +18,12 @@ export const icons = [
     title: "Selection",
     cursor: "default",
   },
-  { id: "circle", icon: <FaRegCircle />, title: "Circle", cursor: "crosshair" },
+  {
+    id: "ellipse",
+    icon: <FaRegCircle />,
+    title: "Ellipse",
+    cursor: "crosshair",
+  },
   {
     id: "rectangle",
     icon: <FaRegSquare />,
@@ -26,15 +31,15 @@ export const icons = [
     cursor: "crosshair",
   },
   {
-    id: "arrow-right",
+    id: "arrow",
     icon: <FaLongArrowAltRight />,
     title: "Arrow",
     cursor: "crosshair",
   },
-  { id: "dash", icon: <GoDash />, title: "Line", cursor: "crosshair" },
+  { id: "line", icon: <GoDash />, title: "Line", cursor: "crosshair" },
   { id: "text", icon: <CiText />, title: "Add Text", cursor: "text" },
   {
-    id: "image-on",
+    id: "image",
     icon: <CiImageOn />,
     title: "Insert Image",
     cursor: "pointer",
