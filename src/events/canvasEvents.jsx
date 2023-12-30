@@ -150,3 +150,27 @@ export const handleMouseUp = (shapes, setShapes, tempShapes, setTempShapes) => {
   setShapes(newShapes);
   setTempShapes({});
 };
+export const handleClick = (
+  e,
+  state,
+  setShapes,
+  setIsSelected,
+  setIsEditing
+) => {
+  if (state.active == "text") {
+    setShapes((prevShapes) => {
+      return [
+        ...prevShapes,
+        {
+          x: e.evt.layerX,
+          y: e.evt.layerY,
+          text: "Text",
+          name: "text",
+        },
+      ];
+    });
+  } else if (e.target == e.target.getStage()) {
+    setIsSelected(null);
+    setIsEditing(null);
+  }
+};

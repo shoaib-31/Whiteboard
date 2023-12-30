@@ -7,6 +7,7 @@ import {
   Image,
   Arrow,
   Transformer,
+  Text,
 } from "react-konva";
 import { useGlobalState } from "../hooks/useGlobalState";
 import { useEffect, useRef, useState } from "react";
@@ -17,6 +18,7 @@ import {
   handleMouseDown,
   handleMouseEnter,
   handleMouseLeave,
+  handleClick,
 } from "../events/canvasEvents";
 import {
   handleMouseDownElement,
@@ -26,16 +28,13 @@ import {
   handleDragStartElement,
   handleTransformer,
 } from "../events/elementEvents";
-import Konva from "konva";
 
 function Canvas() {
   const { state } = useGlobalState();
   const stageRef = useRef(null);
-  const layerRef = useRef();
   const [tempShapes, setTempShapes] = useState({});
   const [history, setHistory] = useState([{ shapes: [] }]);
   const [historyIndex, setHistoryIndex] = useState(0);
-
   const [shapes, setShapes] = useLocalStorageState("allShapes", {
     defaultValue: [],
   });
@@ -108,20 +107,16 @@ function Canvas() {
         img.src = reader.result;
 
         img.onload = () => {
-          const konvaImage = new Konva.Image({
-            image: img,
+          const konvaImage = {
             x: 800 + Math.random() * 100,
             y: 800 + Math.random() * 100,
             width: img.width,
             height: img.height,
             name: "image",
             src: reader.result,
-          });
+          };
 
-          setShapes((prevShapes) => [
-            ...prevShapes,
-            konvaImage.toObject().attrs,
-          ]);
+          setShapes((prevShapes) => [...prevShapes, konvaImage]);
         };
       };
 
@@ -129,19 +124,41 @@ function Canvas() {
     }
   };
   const [isSelected, setIsSelected] = useState(null);
-
+  const [isEditing, setIsEditing] = useState(null);
   return (
     <>
-      <input type="file" id="imageUpload" onChange={handleFileChange} />
+      <input
+        type="file"
+        style={{ position: "absolute", zIndex: -1, visibility: "hidden" }}
+        id="imageUpload"
+        onChange={handleFileChange}
+      />
+      <input
+        type="text"
+        id="textInput"
+        style={{
+          position: "absolute",
+          zIndex: -1,
+          pointerEvents: "none",
+          top: "-10rem",
+        }}
+        onChange={(e) => {
+          if (isEditing === null) return;
+          const index = isEditing;
+          const updatedShapes = shapes;
+          updatedShapes[index].text = e.target.value;
+          setShapes(updatedShapes);
+        }}
+      />
       <Stage
         ref={stageRef}
-        width={window.innerWidth * 2}
-        onClick={(e) => {
-          if (e.target == e.target.getStage()) setIsSelected(null);
-        }}
+        width={window.innerWidth}
+        onClick={(e) =>
+          handleClick(e, state, setShapes, setIsSelected, setIsEditing)
+        }
         onMouseEnter={() => handleMouseEnter(stageRef, state)}
         onMouseLeave={() => handleMouseLeave(stageRef)}
-        height={window.innerHeight * 2}
+        height={window.innerHeight}
         onMouseDown={(e) =>
           handleMouseDown(
             e,
@@ -176,7 +193,7 @@ function Canvas() {
           }
         }}
       >
-        <Layer ref={layerRef}>
+        <Layer>
           {shapes.map((shape, i) => {
             if (shape.name === "rectangle") {
               return (
@@ -207,7 +224,6 @@ function Canvas() {
                     const scaleX = node.scaleX();
                     const scaleY = node.scaleY();
                     const rotation = node.rotation();
-
                     node.scaleX(1);
                     node.scaleY(1);
                     const updatedShapes = shapes;
@@ -418,6 +434,51 @@ function Canvas() {
                     updatedShapes[i].y = node.y();
                     updatedShapes[i].width = Math.max(5, node.width() * scaleX);
                     updatedShapes[i].height = Math.max(node.height() * scaleY);
+                    updatedShapes[i].rotation = rotation;
+                    setShapes(updatedShapes);
+                  }}
+                />
+              );
+            } else if (shape.name === "text") {
+              return (
+                <Text
+                  key={i}
+                  x={shape.x}
+                  y={shape.y}
+                  rotation={shape.rotation || 0}
+                  fill={shape.fill || "black"}
+                  scaleX={shape.scaleX || 1}
+                  scaleY={shape.scaleY || 1}
+                  text={isEditing == i ? shape.text + "|" : shape.text}
+                  fontSize={shape.fontSize || 16}
+                  draggable
+                  onDblClick={() => {
+                    const inputElement = document.getElementById("textInput");
+                    inputElement.value = shape.text;
+                    inputElement.click();
+                    inputElement.focus();
+                    setIsEditing(i);
+                    setIsSelected(null);
+                  }}
+                  onMouseUp={() => handleMouseUpElement(stageRef, state)}
+                  onMouseDown={() => handleMouseDownElement(stageRef, state)}
+                  onMouseEnter={() => handleMouseEnterElement(stageRef, state)}
+                  onDragEnd={(e) =>
+                    handleDragEndElement(e, i, shapes, setShapes)
+                  }
+                  onClick={(e) => handleTransformer(e, setIsSelected, state)}
+                  onTransformEnd={() => {
+                    const node = isSelected;
+                    const scaleX = node.scaleX();
+                    const scaleY = node.scaleY();
+                    const rotation = node.rotation();
+                    node.scaleX(1);
+                    node.scaleY(1);
+                    const updatedShapes = shapes;
+                    updatedShapes[i].x = node.x();
+                    updatedShapes[i].y = node.y();
+                    updatedShapes[i].scaleX = scaleX;
+                    updatedShapes[i].scaleY = scaleY;
                     updatedShapes[i].rotation = rotation;
                     setShapes(updatedShapes);
                   }}

@@ -35,7 +35,11 @@ export const handleDragEndElement = (e, i, shapes, setShapes, initialPos) => {
     const shape = shapes[i];
     let updatedShape = {};
 
-    if (shape.name === "rectangle" || shape.name === "image") {
+    if (
+      shape.name === "rectangle" ||
+      shape.name === "image" ||
+      shape.name === "text"
+    ) {
       updatedShape = {
         ...shape,
         x: e.target.x(),
