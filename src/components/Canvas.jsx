@@ -28,8 +28,6 @@ import {
 } from "../events/elementEvents";
 import Konva from "konva";
 
-// ... (imports and other code)
-
 function Canvas() {
   const { state } = useGlobalState();
   const stageRef = useRef(null);
