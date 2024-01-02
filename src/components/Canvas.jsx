@@ -30,7 +30,7 @@ import {
 } from "../events/elementEvents";
 
 function Canvas() {
-  const { state } = useGlobalState();
+  const { state, dispatch } = useGlobalState();
   const stageRef = useRef(null);
   const [tempShapes, setTempShapes] = useState({});
   const [history, setHistory] = useState([{ shapes: [] }]);
@@ -81,7 +81,6 @@ function Canvas() {
       )
     );
   };
-
   const handleUndo = () => {
     if (historyIndex > 0) {
       setHistoryIndex((prevIndex) => prevIndex - 1);
@@ -95,7 +94,6 @@ function Canvas() {
       setShapes(history[historyIndex + 1].shapes);
     }
   };
-
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
 
@@ -152,13 +150,21 @@ function Canvas() {
       />
       <Stage
         ref={stageRef}
-        width={window.innerWidth}
+        width={window.innerWidth * 2}
         onClick={(e) =>
-          handleClick(e, state, setShapes, setIsSelected, setIsEditing)
+          handleClick(
+            e,
+            state,
+            setShapes,
+            setIsSelected,
+            setIsEditing,
+            stageRef,
+            dispatch
+          )
         }
         onMouseEnter={() => handleMouseEnter(stageRef, state)}
         onMouseLeave={() => handleMouseLeave(stageRef)}
-        height={window.innerHeight}
+        height={window.innerHeight * 2}
         onMouseDown={(e) =>
           handleMouseDown(
             e,
@@ -189,7 +195,14 @@ function Canvas() {
             state.active === "pencil" ||
             state.active === "image"
           ) {
-            handleMouseUp(shapes, setShapes, tempShapes, setTempShapes);
+            handleMouseUp(
+              shapes,
+              setShapes,
+              tempShapes,
+              setTempShapes,
+              stageRef,
+              dispatch
+            );
           }
         }}
       >
@@ -490,7 +503,13 @@ function Canvas() {
             <Transformer
               anchorCornerRadius={5}
               rotateAnchorOffset={30}
-              padding={0}
+              padding={5}
+              enabledAnchors={[
+                "top-left",
+                "top-right",
+                "bottom-left",
+                "bottom-right",
+              ]}
               keepRatio={false}
               boundBoxFunc={(oldBox, newBox) => {
                 if (

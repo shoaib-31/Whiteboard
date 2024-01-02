@@ -144,18 +144,29 @@ export const handleMouseMove = (
   }
 };
 
-export const handleMouseUp = (shapes, setShapes, tempShapes, setTempShapes) => {
+export const handleMouseUp = (
+  shapes,
+  setShapes,
+  tempShapes,
+  setTempShapes,
+  stageRef,
+  dispatch
+) => {
   const newShapes = [...shapes];
   newShapes.push({ ...tempShapes });
   setShapes(newShapes);
   setTempShapes({});
+  stageRef.current.container().style.cursor = "grab";
+  dispatch({ type: "updateActive", payload: { active: "hand-paper" } });
 };
 export const handleClick = (
   e,
   state,
   setShapes,
   setIsSelected,
-  setIsEditing
+  setIsEditing,
+  stageRef,
+  dispatch
 ) => {
   if (state.active == "text") {
     setShapes((prevShapes) => {
@@ -173,4 +184,6 @@ export const handleClick = (
     setIsSelected(null);
     setIsEditing(null);
   }
+  stageRef.current.container().style.cursor = "grab";
+  dispatch({ type: "updateActive", payload: { active: "hand-paper" } });
 };

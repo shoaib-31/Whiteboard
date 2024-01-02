@@ -31,10 +31,10 @@ const RectangularComponent = styled.div`
   width: fit-content;
   z-index: 10;
   padding: 0.5rem;
-  background-color: white;
   height: fit-content;
   display: flex;
-  margin-top: 1rem;
+  top: 1rem;
+  background-color: white;
   box-shadow: 5px 5px 10px #d0d0d0, -5px -5px 10px #d0d0d0;
   border-radius: 10px;
 `;
