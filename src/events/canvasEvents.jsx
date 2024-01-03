@@ -15,12 +15,19 @@ export const handleMouseLeave = (stageRef) => {
   }
 };
 
-export const handleMouseDown = (e, state, setTempShapes, setInitialPos) => {
+export const handleMouseDown = (
+  e,
+  state,
+  setTempShapes,
+  setInitialPos,
+  selectedProps
+) => {
   if (e.evt.buttons === 1) {
     if (state.active === "rectangle") {
       setInitialPos({ x: e.evt.layerX, y: e.evt.layerY });
       setTempShapes((prevShapes) => ({
         ...prevShapes,
+        ...selectedProps,
         x: e.evt.layerX,
         y: e.evt.layerY,
         width: 0,
@@ -30,6 +37,7 @@ export const handleMouseDown = (e, state, setTempShapes, setInitialPos) => {
     } else if (state.active === "ellipse") {
       setInitialPos({ x: e.evt.layerX, y: e.evt.layerY });
       setTempShapes((prevShapes) => ({
+        ...selectedProps,
         ...prevShapes,
         x: e.evt.layerX,
         y: e.evt.layerY,
@@ -40,6 +48,8 @@ export const handleMouseDown = (e, state, setTempShapes, setInitialPos) => {
     } else if (state.active === "line") {
       setInitialPos({ x: e.evt.layerX, y: e.evt.layerY });
       setTempShapes({
+        ...selectedProps,
+        fill: selectedProps.stroke,
         points: [e.evt.layerX, e.evt.layerY, e.evt.layerX, e.evt.layerY],
         name: "line",
         x: 0,
@@ -48,6 +58,7 @@ export const handleMouseDown = (e, state, setTempShapes, setInitialPos) => {
     } else if (state.active === "arrow") {
       setInitialPos({ x: e.evt.layerX, y: e.evt.layerY });
       setTempShapes({
+        ...selectedProps,
         points: [e.evt.layerX, e.evt.layerY, e.evt.layerX, e.evt.layerY],
         name: "arrow",
         x: 0,
@@ -55,6 +66,7 @@ export const handleMouseDown = (e, state, setTempShapes, setInitialPos) => {
       });
     } else if (state.active === "pencil") {
       setTempShapes({
+        ...selectedProps,
         points: [e.evt.layerX, e.evt.layerY + 20],
         name: "pencil",
         x: 0,

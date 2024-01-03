@@ -11,7 +11,6 @@ import {
 } from "react-konva";
 import { useGlobalState } from "../hooks/useGlobalState";
 import { useEffect, useRef, useState } from "react";
-import useLocalStorageState from "use-local-storage-state";
 import {
   handleMouseUp,
   handleMouseMove,
@@ -29,17 +28,21 @@ import {
   handleTransformer,
 } from "../events/elementEvents";
 
-function Canvas() {
+function Canvas({
+  selectedProps,
+  isSelected,
+  setIsSelected,
+  shapes,
+  setShapes,
+}) {
   const { state, dispatch } = useGlobalState();
   const stageRef = useRef(null);
   const [tempShapes, setTempShapes] = useState({});
   const [history, setHistory] = useState([{ shapes: [] }]);
   const [historyIndex, setHistoryIndex] = useState(0);
-  const [shapes, setShapes] = useLocalStorageState("allShapes", {
-    defaultValue: [],
-  });
 
   const [initialPos, setInitialPos] = useState({ x: 0, y: 0 });
+  const [isEditing, setIsEditing] = useState(null);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -121,8 +124,6 @@ function Canvas() {
       reader.readAsDataURL(file);
     }
   };
-  const [isSelected, setIsSelected] = useState(null);
-  const [isEditing, setIsEditing] = useState(null);
   return (
     <>
       <input
@@ -166,14 +167,7 @@ function Canvas() {
         onMouseLeave={() => handleMouseLeave(stageRef)}
         height={window.innerHeight * 2}
         onMouseDown={(e) =>
-          handleMouseDown(
-            e,
-            state,
-            setTempShapes,
-            setInitialPos,
-            shapes,
-            setShapes
-          )
+          handleMouseDown(e, state, setTempShapes, setInitialPos, selectedProps)
         }
         onMouseMove={(e) =>
           handleMouseMove(
@@ -216,8 +210,16 @@ function Canvas() {
                   y={shape.y}
                   stroke={shape.stroke || "black"}
                   strokeWidth={shape.strokeWidth || 2}
-                  fill={shape.fill || "transparent"}
-                  cornerRadius={shape.cornerRadius || 10}
+                  fill={shape.background || "transparent"}
+                  cornerRadius={shape.corners == "round" ? 10 : 0}
+                  dash={
+                    shape.strokeStyle == "dashed"
+                      ? [10, 5]
+                      : shape.strokeStyle == "dotted"
+                      ? [2, 5]
+                      : null
+                  }
+                  opacity={shape.opacity || 1}
                   width={shape.width}
                   rotation={shape.rotation || 0}
                   height={shape.height}
@@ -258,10 +260,17 @@ function Canvas() {
                   rotation={shape.rotation || 0}
                   stroke={shape.stroke || "black"}
                   strokeWidth={shape.strokeWidth || 2}
-                  fill={shape.fill || "transparent"}
-                  cornerRadius={shape.cornerRadius || 10}
-                  width={shape.width}
-                  height={shape.height}
+                  fill={shape.background || "transparent"}
+                  dash={
+                    shape.strokeStyle == "dashed"
+                      ? [10, 5]
+                      : shape.strokeStyle == "dotted"
+                      ? [2, 5]
+                      : null
+                  }
+                  opacity={shape.opacity || 1}
+                  radiusX={shape.width / 2}
+                  radiusY={shape.height / 2}
                   draggable={
                     state.active === "selection" ||
                     state.active === "hand-paper"
@@ -275,19 +284,23 @@ function Canvas() {
                   onClick={(e) => handleTransformer(e, setIsSelected, state)}
                   onTransformEnd={() => {
                     const node = isSelected;
+                    const rotation = node.rotation();
                     const scaleX = node.scaleX();
                     const scaleY = node.scaleY();
-                    const rotation = node.rotation();
-
                     node.scaleX(1);
                     node.scaleY(1);
-                    const updatedShapes = shapes;
-                    updatedShapes[i].x = node.x();
-                    updatedShapes[i].y = node.y();
-                    updatedShapes[i].width = Math.max(5, node.width() * scaleX);
-                    updatedShapes[i].height = Math.max(node.height() * scaleY);
-                    updatedShapes[i].rotation = rotation;
-                    setShapes(updatedShapes);
+                    setShapes((prevShapes) => {
+                      const updatedShapes = [...prevShapes];
+                      updatedShapes[i] = {
+                        ...updatedShapes[i],
+                        x: node.x() - node.radiusX() * scaleX,
+                        y: node.y() - node.radiusY() * scaleY,
+                        width: Math.max(5, node.radiusX() * 2 * scaleX),
+                        height: Math.max(5, node.radiusY() * 2 * scaleY),
+                        rotation: rotation,
+                      };
+                      return updatedShapes;
+                    });
                   }}
                 />
               );
@@ -301,7 +314,15 @@ function Canvas() {
                   rotation={shape.rotation || 0}
                   stroke={shape.stroke || "black"}
                   strokeWidth={shape.strokeWidth || 2}
-                  fill={shape.fill || "transparent"}
+                  fill={shape.stroke}
+                  dash={
+                    shape.strokeStyle == "dashed"
+                      ? [10, 5]
+                      : shape.strokeStyle == "dotted"
+                      ? [2, 5]
+                      : null
+                  }
+                  opacity={shape.opacity || 1}
                   draggable={
                     state.active === "selection" ||
                     state.active === "hand-paper"
@@ -341,7 +362,15 @@ function Canvas() {
                   points={shape.points}
                   stroke={shape.stroke || "black"}
                   strokeWidth={shape.strokeWidth || 2}
-                  fill={shape.fill || "black"}
+                  fill={shape.stroke}
+                  dash={
+                    shape.strokeStyle == "dashed"
+                      ? [10, 5]
+                      : shape.strokeStyle == "dotted"
+                      ? [2, 5]
+                      : null
+                  }
+                  opacity={shape.opacity || 1}
                   draggable={
                     state.active === "selection" ||
                     state.active === "hand-paper"
@@ -382,6 +411,15 @@ function Canvas() {
                   rotation={shape.rotation || 0}
                   stroke={shape.stroke || "black"}
                   strokeWidth={shape.strokeWidth || 2}
+                  fill={shape.background || "transparent"}
+                  dash={
+                    shape.strokeStyle == "dashed"
+                      ? [10, 5]
+                      : shape.strokeStyle == "dotted"
+                      ? [2, 5]
+                      : null
+                  }
+                  opacity={shape.opacity || 1}
                   draggable={
                     state.active === "selection" ||
                     state.active === "hand-paper"
@@ -423,6 +461,8 @@ function Canvas() {
                   y={shape.y}
                   rotation={shape.rotation || 0}
                   width={shape.width}
+                  cornerRadius={shape.corners == "round" ? 10 : 0}
+                  opacity={shape.opacity || 1}
                   height={shape.height}
                   draggable={
                     state.active === "selection" ||
@@ -459,8 +499,10 @@ function Canvas() {
                   x={shape.x}
                   y={shape.y}
                   rotation={shape.rotation || 0}
-                  fill={shape.fill || "black"}
                   scaleX={shape.scaleX || 1}
+                  stroke={shape.stroke || "black"}
+                  strokeWidth={shape.strokeWidth || 2}
+                  opacity={shape.opacity || 1}
                   scaleY={shape.scaleY || 1}
                   text={isEditing == i ? shape.text + "|" : shape.text}
                   fontSize={shape.fontSize || 16}
@@ -529,8 +571,16 @@ function Canvas() {
               y={tempShapes.y}
               stroke={tempShapes.stroke || "black"}
               strokeWidth={tempShapes.strokeWidth || 2}
-              fill={tempShapes.fill || "transparent"}
-              cornerRadius={tempShapes.cornerRadius || 10}
+              fill={tempShapes.background || "transparent"}
+              cornerRadius={tempShapes.corners == "round" ? 10 : 0}
+              dash={
+                tempShapes.strokeStyle == "dashed"
+                  ? [10, 5]
+                  : tempShapes.strokeStyle == "dotted"
+                  ? [2, 5]
+                  : null
+              }
+              opacity={tempShapes.opacity || 1}
               width={tempShapes.width}
               height={tempShapes.height}
               draggable
@@ -541,7 +591,15 @@ function Canvas() {
               y={tempShapes.y + tempShapes.height / 2}
               stroke={tempShapes.stroke || "black"}
               strokeWidth={tempShapes.strokeWidth || 2}
-              fill={tempShapes.fill || "transparent"}
+              fill={tempShapes.background || "transparent"}
+              dash={
+                tempShapes.strokeStyle == "dashed"
+                  ? [10, 5]
+                  : tempShapes.strokeStyle == "dotted"
+                  ? [2, 5]
+                  : null
+              }
+              opacity={tempShapes.opacity || 1}
               radiusX={tempShapes.width / 2}
               radiusY={tempShapes.height / 2}
               draggable
@@ -551,7 +609,15 @@ function Canvas() {
               points={tempShapes.points}
               stroke={tempShapes.stroke || "black"}
               strokeWidth={tempShapes.strokeWidth || 2}
-              fill={tempShapes.fill || "transparent"}
+              cornerRadius={tempShapes.corners == "round" ? 10 : 0}
+              dash={
+                tempShapes.strokeStyle == "dashed"
+                  ? [10, 5]
+                  : tempShapes.strokeStyle == "dotted"
+                  ? [2, 5]
+                  : null
+              }
+              opacity={tempShapes.opacity || 1}
               draggable
             />
           ) : tempShapes.name === "arrow" ? (
@@ -561,7 +627,14 @@ function Canvas() {
               points={tempShapes.points}
               stroke={tempShapes.stroke || "black"}
               strokeWidth={tempShapes.strokeWidth || 2}
-              fill={tempShapes.fill || "black"}
+              dash={
+                tempShapes.strokeStyle == "dashed"
+                  ? [10, 5]
+                  : tempShapes.strokeStyle == "dotted"
+                  ? [2, 5]
+                  : null
+              }
+              opacity={tempShapes.opacity || 1}
               draggable
             />
           ) : (
@@ -572,6 +645,14 @@ function Canvas() {
                 points={tempShapes.points}
                 stroke={tempShapes.stroke || "black"}
                 strokeWidth={tempShapes.strokeWidth || 2}
+                dash={
+                  tempShapes.strokeStyle == "solid"
+                    ? null
+                    : tempShapes.strokeStyle == "dashed"
+                    ? [10, 5]
+                    : [2, 5]
+                }
+                opacity={tempShapes.opacity || 1}
               />
             )
           )}
