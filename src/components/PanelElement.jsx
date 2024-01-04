@@ -1,22 +1,19 @@
 import styled from "styled-components";
-import { useGlobalState } from "../hooks/useGlobalState";
+import { useRecoilState } from "recoil";
+import { activeState } from "../Atoms";
 
 const PanelElement = ({ id, icon, title }) => {
-  const { state, dispatch } = useGlobalState();
+  const [state, setState] = useRecoilState(activeState);
   const handleClick = () => {
     if (id == "image") {
       document.getElementById("imageUpload").click();
-      dispatch({ type: "updateActive", payload: { active: "hand-paper" } });
+      setState("hand-paper");
     } else {
-      dispatch({ type: "updateActive", payload: { active: id } });
+      setState(id);
     }
   };
   return (
-    <SquareContainer
-      title={title}
-      active={state.active == id}
-      onClick={handleClick}
-    >
+    <SquareContainer title={title} active={state == id} onClick={handleClick}>
       {icon}
     </SquareContainer>
   );

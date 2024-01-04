@@ -9,7 +9,6 @@ import {
   Transformer,
   Text,
 } from "react-konva";
-import { useGlobalState } from "../hooks/useGlobalState";
 import { useEffect, useRef, useState } from "react";
 import {
   handleMouseUp,
@@ -27,20 +26,20 @@ import {
   handleDragStartElement,
   handleTransformer,
 } from "../events/elementEvents";
+import { activeState, propsState, selectedState, shapesState } from "../Atoms";
+import { useRecoilState } from "recoil";
 
-function Canvas({
-  selectedProps,
-  isSelected,
-  setIsSelected,
-  shapes,
-  setShapes,
-}) {
-  const { state, dispatch } = useGlobalState();
+function Canvas() {
   const stageRef = useRef(null);
   const [tempShapes, setTempShapes] = useState({});
   const [history, setHistory] = useState([{ shapes: [] }]);
   const [historyIndex, setHistoryIndex] = useState(0);
-
+  const [shapes, setShapes] = useRecoilState(shapesState);
+  /* eslint-disable */
+  const [isSelected, setIsSelected] = useRecoilState(selectedState);
+  const [state, setState] = useRecoilState(activeState);
+  const [selectedProps, setSelectedProps] = useRecoilState(propsState);
+  /* eslint-disable */
   const [initialPos, setInitialPos] = useState({ x: 0, y: 0 });
   const [isEditing, setIsEditing] = useState(null);
 
@@ -160,7 +159,7 @@ function Canvas({
             setIsSelected,
             setIsEditing,
             stageRef,
-            dispatch
+            setState
           )
         }
         onMouseEnter={() => handleMouseEnter(stageRef, state)}
@@ -182,12 +181,12 @@ function Canvas({
         }
         onMouseUp={() => {
           if (
-            state.active === "rectangle" ||
-            state.active === "ellipse" ||
-            state.active === "line" ||
-            state.active === "arrow" ||
-            state.active === "pencil" ||
-            state.active === "image"
+            state === "rectangle" ||
+            state === "ellipse" ||
+            state === "line" ||
+            state === "arrow" ||
+            state === "pencil" ||
+            state === "image"
           ) {
             handleMouseUp(
               shapes,
@@ -195,7 +194,7 @@ function Canvas({
               tempShapes,
               setTempShapes,
               stageRef,
-              dispatch
+              setState
             );
           }
         }}
@@ -223,17 +222,16 @@ function Canvas({
                   width={shape.width}
                   rotation={shape.rotation || 0}
                   height={shape.height}
-                  draggable={
-                    state.active === "selection" ||
-                    state.active === "hand-paper"
-                  }
+                  draggable={state === "selection" || state === "hand-paper"}
                   onMouseUp={() => handleMouseUpElement(stageRef, state)}
                   onMouseDown={() => handleMouseDownElement(stageRef, state)}
                   onMouseEnter={() => handleMouseEnterElement(stageRef, state)}
                   onDragEnd={(e) =>
                     handleDragEndElement(e, i, shapes, setShapes)
                   }
-                  onClick={(e) => handleTransformer(e, setIsSelected, state)}
+                  onClick={(e) => {
+                    handleTransformer(e, setIsSelected, state);
+                  }}
                   onTransformEnd={() => {
                     const node = isSelected;
                     const scaleX = node.scaleX();
@@ -271,10 +269,7 @@ function Canvas({
                   opacity={shape.opacity || 1}
                   radiusX={shape.width / 2}
                   radiusY={shape.height / 2}
-                  draggable={
-                    state.active === "selection" ||
-                    state.active === "hand-paper"
-                  }
+                  draggable={state === "selection" || state === "hand-paper"}
                   onMouseUp={() => handleMouseUpElement(stageRef, state)}
                   onMouseDown={() => handleMouseDownElement(stageRef, state)}
                   onMouseEnter={() => handleMouseEnterElement(stageRef, state)}
@@ -323,10 +318,7 @@ function Canvas({
                       : null
                   }
                   opacity={shape.opacity || 1}
-                  draggable={
-                    state.active === "selection" ||
-                    state.active === "hand-paper"
-                  }
+                  draggable={state === "selection" || state === "hand-paper"}
                   onMouseUp={() => handleMouseUpElement(stageRef, state)}
                   onMouseDown={() => handleMouseDownElement(stageRef, state)}
                   onMouseEnter={() => handleMouseEnterElement(stageRef, state)}
@@ -371,10 +363,7 @@ function Canvas({
                       : null
                   }
                   opacity={shape.opacity || 1}
-                  draggable={
-                    state.active === "selection" ||
-                    state.active === "hand-paper"
-                  }
+                  draggable={state === "selection" || state === "hand-paper"}
                   onDragEnd={(e) =>
                     handleDragEndElement(e, i, shapes, setShapes, initialPos)
                   }
@@ -420,10 +409,7 @@ function Canvas({
                       : null
                   }
                   opacity={shape.opacity || 1}
-                  draggable={
-                    state.active === "selection" ||
-                    state.active === "hand-paper"
-                  }
+                  draggable={state === "selection" || state === "hand-paper"}
                   onDragEnd={(e) =>
                     handleDragEndElement(e, i, shapes, setShapes, initialPos)
                   }
@@ -464,10 +450,7 @@ function Canvas({
                   cornerRadius={shape.corners == "round" ? 10 : 0}
                   opacity={shape.opacity || 1}
                   height={shape.height}
-                  draggable={
-                    state.active === "selection" ||
-                    state.active === "hand-paper"
-                  }
+                  draggable={state === "selection" || state === "hand-paper"}
                   onDragEnd={(e) =>
                     handleDragEndElement(e, i, shapes, setShapes, initialPos)
                   }
@@ -546,6 +529,7 @@ function Canvas({
               anchorCornerRadius={5}
               rotateAnchorOffset={30}
               padding={5}
+              nodes={[isSelected]}
               enabledAnchors={[
                 "top-left",
                 "top-right",
@@ -562,7 +546,6 @@ function Canvas({
                 }
                 return newBox;
               }}
-              node={isSelected}
             />
           )}
           {tempShapes && tempShapes.name === "rectangle" ? (

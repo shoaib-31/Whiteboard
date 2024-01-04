@@ -2,7 +2,7 @@ import { icons } from "../assets/TopPanelElements";
 
 export const handleMouseEnter = (stageRef, state) => {
   if (stageRef.current) {
-    const activeIcon = icons.find((icon) => icon.id === state.active);
+    const activeIcon = icons.find((icon) => icon.id === state);
     if (activeIcon) {
       stageRef.current.container().style.cursor = activeIcon.cursor;
     }
@@ -23,7 +23,7 @@ export const handleMouseDown = (
   selectedProps
 ) => {
   if (e.evt.buttons === 1) {
-    if (state.active === "rectangle") {
+    if (state === "rectangle") {
       setInitialPos({ x: e.evt.layerX, y: e.evt.layerY });
       setTempShapes((prevShapes) => ({
         ...prevShapes,
@@ -34,7 +34,7 @@ export const handleMouseDown = (
         height: 0,
         name: "rectangle",
       }));
-    } else if (state.active === "ellipse") {
+    } else if (state === "ellipse") {
       setInitialPos({ x: e.evt.layerX, y: e.evt.layerY });
       setTempShapes((prevShapes) => ({
         ...selectedProps,
@@ -45,7 +45,7 @@ export const handleMouseDown = (
         height: 0,
         name: "ellipse",
       }));
-    } else if (state.active === "line") {
+    } else if (state === "line") {
       setInitialPos({ x: e.evt.layerX, y: e.evt.layerY });
       setTempShapes({
         ...selectedProps,
@@ -55,7 +55,7 @@ export const handleMouseDown = (
         x: 0,
         y: 0,
       });
-    } else if (state.active === "arrow") {
+    } else if (state === "arrow") {
       setInitialPos({ x: e.evt.layerX, y: e.evt.layerY });
       setTempShapes({
         ...selectedProps,
@@ -64,7 +64,7 @@ export const handleMouseDown = (
         x: 0,
         y: 0,
       });
-    } else if (state.active === "pencil") {
+    } else if (state === "pencil") {
       setTempShapes({
         ...selectedProps,
         points: [e.evt.layerX, e.evt.layerY + 20],
@@ -89,7 +89,7 @@ export const handleMouseMove = (
     const initialX = initialPos.x;
     const initialY = initialPos.y;
     const newShapes = { ...tempShapes };
-    if (state.active === "rectangle" || state.active === "ellipse") {
+    if (state === "rectangle" || state === "ellipse") {
       newShapes.width = e.evt.layerX - initialX;
       newShapes.height = e.evt.layerY - initialY;
       if (newShapes.width < 0) {
@@ -110,7 +110,7 @@ export const handleMouseMove = (
         };
       });
     }
-    if (state.active === "line") {
+    if (state === "line") {
       newShapes.points = [initialX, initialY, e.evt.layerX, e.evt.layerY];
       setTempShapes((prevShapes) => {
         return {
@@ -119,7 +119,7 @@ export const handleMouseMove = (
         };
       });
     }
-    if (state.active === "arrow") {
+    if (state === "arrow") {
       newShapes.points = [initialX, initialY, e.evt.layerX, e.evt.layerY];
       setTempShapes((prevShapes) => {
         return {
@@ -128,7 +128,7 @@ export const handleMouseMove = (
         };
       });
     }
-    if (state.active === "pencil") {
+    if (state === "pencil") {
       newShapes.points = [...newShapes.points, e.evt.layerX, e.evt.layerY + 20];
       setTempShapes((prevShapes) => {
         return {
@@ -137,7 +137,7 @@ export const handleMouseMove = (
         };
       });
     }
-    if (state.active === "eraser" && e.target !== e.target.getStage()) {
+    if (state === "eraser" && e.target !== e.target.getStage()) {
       const shapeToDelete = shapes.find((shape) => {
         if (shape.name === "ellipse") {
           return (
@@ -162,14 +162,14 @@ export const handleMouseUp = (
   tempShapes,
   setTempShapes,
   stageRef,
-  dispatch
+  setState
 ) => {
   const newShapes = [...shapes];
   newShapes.push({ ...tempShapes });
   setShapes(newShapes);
   setTempShapes({});
   stageRef.current.container().style.cursor = "grab";
-  dispatch({ type: "updateActive", payload: { active: "hand-paper" } });
+  setState("hand-paper");
 };
 export const handleClick = (
   e,
@@ -178,9 +178,9 @@ export const handleClick = (
   setIsSelected,
   setIsEditing,
   stageRef,
-  dispatch
+  setState
 ) => {
-  if (state.active == "text") {
+  if (state == "text") {
     setShapes((prevShapes) => {
       return [
         ...prevShapes,
@@ -197,5 +197,5 @@ export const handleClick = (
     setIsEditing(null);
   }
   stageRef.current.container().style.cursor = "grab";
-  dispatch({ type: "updateActive", payload: { active: "hand-paper" } });
+  setState("hand-paper");
 };

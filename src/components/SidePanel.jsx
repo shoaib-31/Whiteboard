@@ -9,6 +9,8 @@ import Slider from "rc-slider";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { MdContentCopy } from "react-icons/md";
 import "rc-slider/assets/index.css";
+import { useRecoilState } from "recoil";
+import { activeState, propsState, selectedState, shapesState } from "../Atoms";
 const colors = ["#000", "#00f", "#0f0", "#f00", "#ff7c25"];
 const backgroundOptions = [
   "transparent",
@@ -17,21 +19,20 @@ const backgroundOptions = [
   "#63f7ff",
   "#fca2ff",
 ];
-const SidePanel = ({
-  selectedProps,
-  setSelectedProps,
-  isSelected,
-  shapes,
-  setShapes,
-  state,
-}) => {
+const SidePanel = () => {
+  const [selectedProps, setSelectedProps] = useRecoilState(propsState);
+  const [shapes, setShapes] = useRecoilState(shapesState);
+  /* eslint-disable */
+  const [state, setState] = useRecoilState(activeState);
+  const [isSelected, setIsSelected] = useRecoilState(selectedState);
+  /* eslint-disable */
   const [showStrokeColorPicker, setShowStrokeColorPicker] = useState(false);
   const [showBackgroundColorPicker, setShowBackgroundColorPicker] =
     useState(false);
   const [shapeName, setShapeName] = useState("");
   useEffect(() => {
     if (!isSelected) {
-      setShapeName(state.active);
+      setShapeName(state);
     } else if (isSelected) {
       setSelectedProps({
         stroke: isSelected.attrs.stroke,
@@ -56,7 +57,7 @@ const SidePanel = ({
         opacity: 1,
       });
     }
-  }, [isSelected, state.active]);
+  }, [isSelected, state]);
   useEffect(() => {
     if (isSelected) {
       const shapeToUpdate = shapes.find((shape) => {
@@ -108,71 +109,27 @@ const SidePanel = ({
     setShowBackgroundColorPicker(!showBackgroundColorPicker);
     setShowStrokeColorPicker(false);
   };
+  const shouldRenderSidePanel =
+    // isSelected ||
+    // (["rectangle", "ellipse", "line", "text", "arrow", "pencil"].includes(
+    //   state
+    // ) &&
+    //   state !== "eraser");
+    true;
 
   return (
-    <Main>
-      {shapeName != "image" && (
-        <Section>
-          <Head>Stroke</Head>
-          <Options>
-            {colors.map((color, i) => (
-              <RadioLabel
-                onClick={() => handlePropertyChange(color, "stroke")}
-                key={i}
-                checked={selectedProps.stroke === color}
-                style={{ backgroundColor: color }}
-              ></RadioLabel>
-            ))}
-            <span
-              style={{
-                backgroundColor: "#c3c3c3",
-                width: "1px",
-                height: "2rem",
-              }}
-            ></span>
-            <RadioLabel
-              title="Custom Stroke"
-              checked={false}
-              style={{ backgroundColor: selectedProps.stroke }}
-              onClick={toggleStrokeColorPicker}
-            ></RadioLabel>
-            {showStrokeColorPicker && (
-              <ColorPickerContainer>
-                <CirclePicker
-                  color={selectedProps.stroke}
-                  onChangeComplete={(color) =>
-                    handlePropertyChange(color.hex, "stroke")
-                  }
-                />
-              </ColorPickerContainer>
-            )}
-          </Options>
-        </Section>
-      )}
-      {shapeName != "line" &&
-        shapeName != "arrow" &&
-        shapeName != "image" &&
-        shapeName != "eraser" &&
-        shapeName != "pencil" &&
-        shapeName != "text" && (
+    shouldRenderSidePanel && (
+      <Main>
+        {shapeName != "image" && (
           <Section>
-            <Head>Background</Head>
+            <Head>Stroke</Head>
             <Options>
-              {backgroundOptions.map((color, i) => (
+              {colors.map((color, i) => (
                 <RadioLabel
-                  checked={selectedProps.background === color}
-                  title={color}
+                  onClick={() => handlePropertyChange(color, "stroke")}
                   key={i}
-                  onClick={() => handlePropertyChange(color, "background")}
-                  style={
-                    color == "transparent"
-                      ? {
-                          backgroundImage: `url(${transparent})`,
-                          width: "0.8rem",
-                          height: "0.8rem",
-                        }
-                      : { backgroundColor: color }
-                  }
+                  checked={selectedProps.stroke === color}
+                  style={{ backgroundColor: color }}
                 ></RadioLabel>
               ))}
               <span
@@ -183,25 +140,17 @@ const SidePanel = ({
                 }}
               ></span>
               <RadioLabel
-                title="Custom Background"
+                title="Custom Stroke"
                 checked={false}
-                style={
-                  selectedProps.background
-                    ? {
-                        backgroundImage: `url(${transparent})`,
-                        width: "0.8rem",
-                        height: "0.8rem",
-                      }
-                    : { backgroundColor: selectedProps.background }
-                }
-                onClick={toggleBackgroundColorPicker}
+                style={{ backgroundColor: selectedProps.stroke }}
+                onClick={toggleStrokeColorPicker}
               ></RadioLabel>
-              {showBackgroundColorPicker && (
+              {showStrokeColorPicker && (
                 <ColorPickerContainer>
                   <CirclePicker
-                    color={selectedProps.background}
+                    color={selectedProps.stroke}
                     onChangeComplete={(color) =>
-                      handlePropertyChange(color.hex, "background")
+                      handlePropertyChange(color.hex, "stroke")
                     }
                   />
                 </ColorPickerContainer>
@@ -209,131 +158,194 @@ const SidePanel = ({
             </Options>
           </Section>
         )}
-      {shapeName != "image" && (
-        <Section>
-          <Head style={{ marginBottom: "0.5rem" }}>Stroke Width</Head>
-          <Options>
-            <RadioLabel2
-              onClick={() => handlePropertyChange(2, "strokeWidth")}
-              checked={selectedProps.strokeWidth === 2}
-              title="Thin"
-            >
-              <GoDash />
-            </RadioLabel2>
-            <RadioLabel2
-              checked={selectedProps.strokeWidth === 4}
-              style={{ fontWeight: "600" }}
-              title="Dark"
-              onClick={() => handlePropertyChange(4, "strokeWidth")}
-            >
-              <GoDash style={{ strokeWidth: 2 }} />
-            </RadioLabel2>
-            <RadioLabel2
-              checked={selectedProps.strokeWidth === 6}
-              style={{ fontWeight: "800" }}
-              title="Extra Dark"
-              onClick={() => handlePropertyChange(6, "strokeWidth")}
-            >
-              <GoDash style={{ strokeWidth: 4 }} />
-            </RadioLabel2>
-          </Options>
-        </Section>
-      )}
-      {shapeName != "image" && (
-        <Section>
-          <Head style={{ marginBottom: "0.5rem" }}>Stroke style</Head>
-          <Options>
-            <RadioLabel2
-              checked={selectedProps.strokeStyle === "solid"}
-              title="Solid"
-              onClick={() => handlePropertyChange("solid", "strokeStyle")}
-            >
-              <GoDash />
-            </RadioLabel2>
-            <RadioLabel2
-              checked={selectedProps.strokeStyle === "dashed"}
-              style={{ fontWeight: "600", fontSize: "6px" }}
-              title="Dashed"
-              onClick={() => handlePropertyChange("dashed", "strokeStyle")}
-            >
-              - - -
-            </RadioLabel2>
-            <RadioLabel2
-              checked={selectedProps.strokeStyle === "dotted"}
-              style={{ fontWeight: "700", fontSize: "10px" }}
-              title="Dotted"
-              onClick={() => handlePropertyChange("dotted", "strokeStyle")}
-            >
-              . . .
-            </RadioLabel2>
-          </Options>
-        </Section>
-      )}
-      {shapeName != "line" &&
-        shapeName != "arrow" &&
-        shapeName != "image" &&
-        shapeName != "eraser" &&
-        shapeName != "pencil" &&
-        shapeName != "text" && (
+        {shapeName != "line" &&
+          shapeName != "arrow" &&
+          shapeName != "image" &&
+          shapeName != "eraser" &&
+          shapeName != "pencil" &&
+          shapeName != "text" && (
+            <Section>
+              <Head>Background</Head>
+              <Options>
+                {backgroundOptions.map((color, i) => (
+                  <RadioLabel
+                    checked={selectedProps.background === color}
+                    title={color}
+                    key={i}
+                    onClick={() => handlePropertyChange(color, "background")}
+                    style={
+                      color == "transparent"
+                        ? {
+                            backgroundImage: `url(${transparent})`,
+                            width: "0.8rem",
+                            height: "0.8rem",
+                          }
+                        : { backgroundColor: color }
+                    }
+                  ></RadioLabel>
+                ))}
+                <span
+                  style={{
+                    backgroundColor: "#c3c3c3",
+                    width: "1px",
+                    height: "2rem",
+                  }}
+                ></span>
+                <RadioLabel
+                  title="Custom Background"
+                  checked={false}
+                  style={
+                    selectedProps.background
+                      ? {
+                          backgroundImage: `url(${transparent})`,
+                          width: "0.8rem",
+                          height: "0.8rem",
+                        }
+                      : { backgroundColor: selectedProps.background }
+                  }
+                  onClick={toggleBackgroundColorPicker}
+                ></RadioLabel>
+                {showBackgroundColorPicker && (
+                  <ColorPickerContainer>
+                    <CirclePicker
+                      color={selectedProps.background}
+                      onChangeComplete={(color) =>
+                        handlePropertyChange(color.hex, "background")
+                      }
+                    />
+                  </ColorPickerContainer>
+                )}
+              </Options>
+            </Section>
+          )}
+        {shapeName != "image" && (
           <Section>
-            <Head style={{ marginBottom: "0.5rem" }}>Corners</Head>
+            <Head style={{ marginBottom: "0.5rem" }}>Stroke Width</Head>
             <Options>
               <RadioLabel2
-                checked={selectedProps.corners === "round"}
-                title="Round"
-                onClick={() => handlePropertyChange("round", "corners")}
+                onClick={() => handlePropertyChange(2, "strokeWidth")}
+                checked={selectedProps.strokeWidth === 2}
+                title="Thin"
               >
-                <img src={rounded} />
+                <GoDash />
               </RadioLabel2>
               <RadioLabel2
-                checked={selectedProps.corners === "sharp"}
-                style={{ fontWeight: "600", fontSize: "6px" }}
-                title="Sharp"
-                onClick={() => handlePropertyChange("sharp", "corners")}
+                checked={selectedProps.strokeWidth === 4}
+                style={{ fontWeight: "600" }}
+                title="Dark"
+                onClick={() => handlePropertyChange(4, "strokeWidth")}
               >
-                <img src={sharp} />
+                <GoDash style={{ strokeWidth: 2 }} />
+              </RadioLabel2>
+              <RadioLabel2
+                checked={selectedProps.strokeWidth === 6}
+                style={{ fontWeight: "800" }}
+                title="Extra Dark"
+                onClick={() => handlePropertyChange(6, "strokeWidth")}
+              >
+                <GoDash style={{ strokeWidth: 4 }} />
               </RadioLabel2>
             </Options>
           </Section>
         )}
-      {shapeName != "image" && (
+        {shapeName != "image" && (
+          <Section>
+            <Head style={{ marginBottom: "0.5rem" }}>Stroke style</Head>
+            <Options>
+              <RadioLabel2
+                checked={selectedProps.strokeStyle === "solid"}
+                title="Solid"
+                onClick={() => handlePropertyChange("solid", "strokeStyle")}
+              >
+                <GoDash />
+              </RadioLabel2>
+              <RadioLabel2
+                checked={selectedProps.strokeStyle === "dashed"}
+                style={{ fontWeight: "600", fontSize: "6px" }}
+                title="Dashed"
+                onClick={() => handlePropertyChange("dashed", "strokeStyle")}
+              >
+                - - -
+              </RadioLabel2>
+              <RadioLabel2
+                checked={selectedProps.strokeStyle === "dotted"}
+                style={{ fontWeight: "700", fontSize: "10px" }}
+                title="Dotted"
+                onClick={() => handlePropertyChange("dotted", "strokeStyle")}
+              >
+                . . .
+              </RadioLabel2>
+            </Options>
+          </Section>
+        )}
+        {shapeName != "line" &&
+          shapeName != "arrow" &&
+          shapeName != "image" &&
+          shapeName != "eraser" &&
+          shapeName != "pencil" &&
+          shapeName != "text" && (
+            <Section>
+              <Head style={{ marginBottom: "0.5rem" }}>Corners</Head>
+              <Options>
+                <RadioLabel2
+                  checked={selectedProps.corners === "round"}
+                  title="Round"
+                  onClick={() => handlePropertyChange("round", "corners")}
+                >
+                  <img src={rounded} />
+                </RadioLabel2>
+                <RadioLabel2
+                  checked={selectedProps.corners === "sharp"}
+                  style={{ fontWeight: "600", fontSize: "6px" }}
+                  title="Sharp"
+                  onClick={() => handlePropertyChange("sharp", "corners")}
+                >
+                  <img src={sharp} />
+                </RadioLabel2>
+              </Options>
+            </Section>
+          )}
+        {shapeName != "image" && (
+          <Section>
+            <Head style={{ marginBottom: "0.5rem" }}>Opacity</Head>
+            <Options>
+              <Slider
+                min={0}
+                max={100}
+                step={1}
+                trackStyle={{ backgroundColor: "#875fff", height: "6px" }}
+                handleStyle={{
+                  borderColor: "#875fff",
+                  height: "14px",
+                  backgroundColor: "#6f42f9",
+                  width: "14px",
+                  marginTop: "-4px",
+                }}
+                activeDotStyle={{
+                  borderColor: "#875fff",
+                  height: "14px",
+                  width: "14px",
+                  marginTop: "-4px",
+                }}
+                value={selectedProps.opacity * 100}
+                onChange={(value) =>
+                  handlePropertyChange(value / 100, "opacity")
+                }
+              />
+            </Options>
+          </Section>
+        )}
         <Section>
-          <Head style={{ marginBottom: "0.5rem" }}>Opacity</Head>
-          <Options>
-            <Slider
-              min={0}
-              max={100}
-              step={1}
-              trackStyle={{ backgroundColor: "#875fff", height: "6px" }}
-              handleStyle={{
-                borderColor: "#875fff",
-                height: "14px",
-                backgroundColor: "#6f42f9",
-                width: "14px",
-                marginTop: "-4px",
-              }}
-              activeDotStyle={{
-                borderColor: "#875fff",
-                height: "14px",
-                width: "14px",
-                marginTop: "-4px",
-              }}
-              value={selectedProps.opacity * 100}
-              onChange={(value) => handlePropertyChange(value / 100, "opacity")}
-            />
-          </Options>
+          <Head style={{ marginBottom: "0.5rem" }}>Actions</Head>
+          <Button title="Delete">
+            <FaRegTrashAlt />
+          </Button>
+          <Button title="Duplicate">
+            <MdContentCopy />
+          </Button>
         </Section>
-      )}
-      <Section>
-        <Head style={{ marginBottom: "0.5rem" }}>Actions</Head>
-        <Button title="Delete">
-          <FaRegTrashAlt />
-        </Button>
-        <Button title="Duplicate">
-          <MdContentCopy />
-        </Button>
-      </Section>
-    </Main>
+      </Main>
+    )
   );
 };
 

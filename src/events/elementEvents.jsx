@@ -1,9 +1,9 @@
 import { icons } from "../assets/TopPanelElements";
 
 export const handleMouseUpElement = (stageRef, state) => {
-  if (state.active === "hand-paper" || state.active === "selection") {
+  if (state === "hand-paper" || state === "selection") {
     if (stageRef.current) {
-      const activeIcon = icons.find((icon) => icon.id === state.active);
+      const activeIcon = icons.find((icon) => icon.id === state);
       stageRef.current.container().style.cursor = activeIcon
         ? activeIcon.cursor
         : "default";
@@ -12,18 +12,18 @@ export const handleMouseUpElement = (stageRef, state) => {
 };
 
 export const handleMouseDownElement = (stageRef, state) => {
-  if (state.active === "hand-paper" || state.active === "selection") {
-    if (state.active === "hand-paper") {
+  if (state === "hand-paper" || state === "selection") {
+    if (state === "hand-paper") {
       stageRef.current.container().style.cursor = "grabbing";
     }
-    if (state.active === "selection") {
+    if (state === "selection") {
       stageRef.current.container().style.cursor = "all-scroll";
     }
   }
 };
 
 export const handleMouseEnterElement = (stageRef, state) => {
-  if (state.active === "selection") {
+  if (state === "selection") {
     if (stageRef.current) {
       stageRef.current.container().style.cursor = "all-scroll";
     }
@@ -76,7 +76,7 @@ export const handleDragStartElement = (e, setInitialPos) => {
   }
 };
 export const handleTransformer = (e, setIsSelected, state) => {
-  if (state.active === "hand-paper") {
+  if (state === "hand-paper") {
     setIsSelected(e.target);
   }
 };
