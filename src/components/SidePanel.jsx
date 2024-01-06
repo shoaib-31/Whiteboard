@@ -4,6 +4,7 @@ import { CirclePicker } from "react-color";
 import transparent from "/transparentbg.png";
 import { GoDash } from "react-icons/go";
 import rounded from "/rounded-corner.svg";
+import Select from "react-select";
 import sharp from "/sharp-corner.svg";
 import Slider from "rc-slider";
 import { FaRegTrashAlt } from "react-icons/fa";
@@ -19,6 +20,24 @@ const backgroundOptions = [
   "#63f7ff",
   "#fca2ff",
 ];
+const fontFamilies = [
+  { value: "Arial", label: "Arial" },
+  { value: "Verdana", label: "Verdana" },
+  { value: "Times New Roman", label: "Times New Roman" },
+  { value: "Courier New", label: "Courier New" },
+  { value: "Raleway", label: "Raleway" },
+  { value: "Rubik Doodle Shadow", label: "Rubik Doodle Shadow" },
+  { value: "Lemon", label: "Lemon" },
+  { value: "Dancing Script", label: "Dancing Script" },
+];
+const customStyles = {
+  option: (provided, state) => ({
+    ...provided,
+    fontFamily: state.data.value,
+    fontSize: "14px",
+    minWidth: "100%",
+  }),
+};
 const SidePanel = () => {
   const [selectedProps, setSelectedProps] = useRecoilState(propsState);
   const [shapes, setShapes] = useRecoilState(shapesState);
@@ -36,7 +55,7 @@ const SidePanel = () => {
     } else if (isSelected) {
       setSelectedProps({
         stroke: isSelected.attrs.stroke,
-        background: isSelected.attrs.fill,
+        background: isSelected.attrs.background,
         strokeWidth: isSelected.attrs.strokeWidth,
         strokeStyle:
           isSelected.attrs.dash == [10, 5]
@@ -46,15 +65,8 @@ const SidePanel = () => {
             : "solid",
         corners: isSelected.attrs.cornerRadius == 10 ? "round" : "sharp",
         opacity: isSelected.attrs.opacity,
-      });
-    } else {
-      setSelectedProps({
-        stroke: colors[0],
-        background: backgroundOptions[0],
-        strokeWidth: 2,
-        strokeStyle: "solid",
-        corners: "round",
-        opacity: 1,
+        fontSize: isSelected.attrs.fontSize,
+        fontFamily: isSelected.attrs.fontFamily,
       });
     }
   }, [isSelected, state]);
@@ -81,12 +93,16 @@ const SidePanel = () => {
               strokeStyle: selectedProps.strokeStyle,
               corners: selectedProps.corners,
               opacity: selectedProps.opacity,
+              fontSize: selectedProps.fontSize,
+              fontFamily: selectedProps.fontFamily,
             };
           } else {
             return shape;
           }
         });
-        setShapes(updatedShapes);
+        setShapes(() => {
+          return updatedShapes;
+        });
       }
     }
   }, [selectedProps, isSelected]);
@@ -192,7 +208,7 @@ const SidePanel = () => {
           shapeName != "pencil" &&
           shapeName != "text" && (
             <Section>
-              <Head>Background</Head>
+              <Head>{shapeName == "text" ? "Fill" : "Background"}</Head>
               <Options>
                 {backgroundOptions.map((color, i) => (
                   <RadioLabel
@@ -305,6 +321,46 @@ const SidePanel = () => {
             </Options>
           </Section>
         )}
+        {shapeName === "text" && (
+          <Section>
+            <Head style={{ marginBottom: "0.5rem" }}>Font Size</Head>
+            <Options>
+              <input
+                type="number"
+                value={selectedProps.fontSize}
+                min={8}
+                max={200}
+                step={1}
+                onChange={(e) =>
+                  handlePropertyChange(e.target.value, "fontSize")
+                }
+                style={{
+                  width: "3rem",
+                  marginRight: "0.5rem",
+                  paddingLeft: "0.5rem",
+                }}
+              />
+            </Options>
+          </Section>
+        )}
+        {shapeName === "text" && (
+          <Section>
+            <Head style={{ marginBottom: "0.5rem" }}>Font Family</Head>
+            <Options>
+              <Select
+                options={fontFamilies}
+                value={fontFamilies.find(
+                  (font) => font.value === selectedProps.fontFamily
+                )}
+                onChange={(selectedOption) =>
+                  handlePropertyChange(selectedOption.value, "fontFamily")
+                }
+                styles={customStyles}
+              />
+            </Options>
+          </Section>
+        )}
+
         {shapeName != "line" &&
           shapeName != "arrow" &&
           shapeName != "image" &&

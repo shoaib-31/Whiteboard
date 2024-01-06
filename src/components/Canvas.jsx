@@ -143,9 +143,14 @@ function Canvas() {
         onChange={(e) => {
           if (isEditing === null) return;
           const index = isEditing;
-          const updatedShapes = shapes;
-          updatedShapes[index].text = e.target.value;
-          setShapes(updatedShapes);
+          setShapes((prevShapes) => {
+            const updatedShapes = [...prevShapes];
+            updatedShapes[index] = {
+              ...prevShapes[index],
+              text: e.target.value,
+            };
+            return updatedShapes;
+          });
         }}
       />
       <Stage
@@ -159,7 +164,8 @@ function Canvas() {
             setIsSelected,
             setIsEditing,
             stageRef,
-            setState
+            setState,
+            selectedProps
           )
         }
         onMouseEnter={() => handleMouseEnter(stageRef, state)}
@@ -483,12 +489,15 @@ function Canvas() {
                   y={shape.y}
                   rotation={shape.rotation || 0}
                   scaleX={shape.scaleX || 1}
+                  fill={shape.background || "black"}
                   stroke={shape.stroke || "black"}
-                  strokeWidth={shape.strokeWidth || 2}
+                  strokeWidth={shape.strokeWidth}
+                  strokeStyle={shape.strokeStyle || "solid"}
+                  fontFamily={shape.fontFamily || "Arial"}
                   opacity={shape.opacity || 1}
                   scaleY={shape.scaleY || 1}
                   text={isEditing == i ? shape.text + "|" : shape.text}
-                  fontSize={shape.fontSize || 16}
+                  fontSize={shape.fontSize || 25}
                   draggable
                   onDblClick={() => {
                     const inputElement = document.getElementById("textInput");
@@ -506,19 +515,26 @@ function Canvas() {
                   }
                   onClick={(e) => handleTransformer(e, setIsSelected, state)}
                   onTransformEnd={() => {
-                    const node = isSelected;
-                    const scaleX = node.scaleX();
-                    const scaleY = node.scaleY();
-                    const rotation = node.rotation();
-                    node.scaleX(1);
-                    node.scaleY(1);
-                    const updatedShapes = shapes;
-                    updatedShapes[i].x = node.x();
-                    updatedShapes[i].y = node.y();
-                    updatedShapes[i].scaleX = scaleX;
-                    updatedShapes[i].scaleY = scaleY;
-                    updatedShapes[i].rotation = rotation;
-                    setShapes(updatedShapes);
+                    setShapes((prevShapes) => {
+                      const updatedShapes = [...prevShapes];
+                      const node = isSelected;
+                      const scaleX = node.scaleX();
+                      const scaleY = node.scaleY();
+                      const rotation = node.rotation();
+                      node.scaleX(1);
+                      node.scaleY(1);
+
+                      updatedShapes[i] = {
+                        ...prevShapes[i],
+                        x: node.x(),
+                        y: node.y(),
+                        scaleX,
+                        scaleY,
+                        rotation,
+                      };
+
+                      return updatedShapes;
+                    });
                   }}
                 />
               );

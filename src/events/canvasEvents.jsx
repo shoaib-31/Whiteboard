@@ -178,7 +178,8 @@ export const handleClick = (
   setIsSelected,
   setIsEditing,
   stageRef,
-  setState
+  setState,
+  selectedProps
 ) => {
   if (state == "text") {
     setShapes((prevShapes) => {
@@ -189,6 +190,13 @@ export const handleClick = (
           y: e.evt.layerY,
           text: "Text",
           name: "text",
+          fontSize: selectedProps.fontSize,
+          fontFamily: selectedProps.fontFamily,
+          opacity: selectedProps.opacity,
+          stroke: selectedProps.stroke,
+          strokeWidth: selectedProps.strokeWidth,
+          strokeStyle: selectedProps.strokeStyle,
+          fill: selectedProps.background,
         },
       ];
     });

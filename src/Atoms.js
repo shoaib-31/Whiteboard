@@ -31,5 +31,7 @@ export const propsState = atom({
     strokeStyle: "solid",
     corners: "round",
     opacity: 1,
+    fontSize: 30,
+    fontFamily: "Arial",
   },
 });
