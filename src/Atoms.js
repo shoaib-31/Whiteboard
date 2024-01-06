@@ -20,6 +20,7 @@ export const selectedState = atom({
 export const shapesState = atom({
   key: "shapesState",
   default: [],
+  dangerouslyAllowMutability: true,
 });
 export const propsState = atom({
   key: "propsState",

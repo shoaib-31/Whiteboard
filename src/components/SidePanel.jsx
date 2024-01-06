@@ -110,13 +110,40 @@ const SidePanel = () => {
     setShowStrokeColorPicker(false);
   };
   const shouldRenderSidePanel =
-    // isSelected ||
-    // (["rectangle", "ellipse", "line", "text", "arrow", "pencil"].includes(
-    //   state
-    // ) &&
-    //   state !== "eraser");
-    true;
-
+    isSelected ||
+    (["rectangle", "ellipse", "line", "text", "arrow", "pencil"].includes(
+      state
+    ) &&
+      state !== "eraser");
+  const handleDelete = () => {
+    const updatedShapes = shapes.filter((shape) => {
+      if (shape.name === "ellipse") {
+        return (
+          shape.x !== isSelected.attrs.x - shape.width / 2 &&
+          shape.y !== isSelected.attrs.y - shape.height / 2
+        );
+      }
+      return shape.x !== isSelected.attrs.x && shape.y !== isSelected.attrs.y;
+    });
+    setShapes(updatedShapes);
+    setIsSelected(null);
+  };
+  const handleDuplicate = () => {
+    const shapeToDuplicate = shapes.find((shape) => {
+      if (shape.name === "ellipse") {
+        return (
+          shape.x === isSelected.attrs.x - shape.width / 2 &&
+          shape.y === isSelected.attrs.y - shape.height / 2
+        );
+      }
+      return shape.x === isSelected.attrs.x && shape.y === isSelected.attrs.y;
+    });
+    const newShape = { ...shapeToDuplicate };
+    newShape.x += 10;
+    newShape.y += 10;
+    setShapes([...shapes, newShape]);
+    setIsSelected(null);
+  };
   return (
     shouldRenderSidePanel && (
       <Main>
@@ -337,10 +364,10 @@ const SidePanel = () => {
         )}
         <Section>
           <Head style={{ marginBottom: "0.5rem" }}>Actions</Head>
-          <Button title="Delete">
+          <Button title="Delete" onClick={handleDelete}>
             <FaRegTrashAlt />
           </Button>
-          <Button title="Duplicate">
+          <Button title="Duplicate" onClick={handleDuplicate}>
             <MdContentCopy />
           </Button>
         </Section>
