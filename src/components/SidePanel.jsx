@@ -310,6 +310,7 @@ const SidePanel = () => {
           shapeName != "image" &&
           shapeName != "eraser" &&
           shapeName != "pencil" &&
+          shapeName != "ellipse" &&
           shapeName != "text" && (
             <Section>
               <Head style={{ marginBottom: "0.5rem" }}>Corners</Head>

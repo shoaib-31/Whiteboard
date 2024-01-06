@@ -1,15 +1,12 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
-import RecoilizeDebugger from "recoilize";
 import { RecoilRoot } from "recoil";
+import RecoilizeDebugger from "recoilize";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <RecoilRoot>
-      <RecoilizeDebugger />
-      <App />
-    </RecoilRoot>
-  </React.StrictMode>
+  <RecoilRoot>
+    <RecoilizeDebugger />
+    <App />
+  </RecoilRoot>
 );
