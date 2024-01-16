@@ -26,7 +26,13 @@ import {
   handleDragStartElement,
   handleTransformer,
 } from "../events/elementEvents";
-import { activeState, propsState, selectedState, shapesState } from "../Atoms";
+import {
+  activeState,
+  optionsState,
+  propsState,
+  selectedState,
+  shapesState,
+} from "../Atoms";
 import { useRecoilState } from "recoil";
 
 function Canvas() {
@@ -35,6 +41,7 @@ function Canvas() {
   const [history, setHistory] = useState([{ shapes: [] }]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [shapes, setShapes] = useRecoilState(shapesState);
+  const [optionsActive, setOptionsActive] = useRecoilState(optionsState);
   /* eslint-disable */
   const [isSelected, setIsSelected] = useRecoilState(selectedState);
   const [state, setState] = useRecoilState(activeState);
@@ -165,7 +172,9 @@ function Canvas() {
             setIsEditing,
             stageRef,
             setState,
-            selectedProps
+            selectedProps,
+            optionsActive,
+            setOptionsActive
           )
         }
         onMouseEnter={() => handleMouseEnter(stageRef, state)}

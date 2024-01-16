@@ -24,3 +24,7 @@ body {
   position: relative;
   border: 1px solid #e0e0e0;
 }
+.react-responsive-modal-modal {
+  padding: 3rem;
+  border-radius: 10px;
+}

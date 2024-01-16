@@ -13,7 +13,7 @@ const PanelElement = ({ id, icon, title }) => {
     }
   };
   return (
-    <SquareContainer title={title} active={state == id} onClick={handleClick}>
+    <SquareContainer title={title} $active={state == id} onClick={handleClick}>
       {icon}
     </SquareContainer>
   );

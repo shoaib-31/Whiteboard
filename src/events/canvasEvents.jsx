@@ -179,8 +179,13 @@ export const handleClick = (
   setIsEditing,
   stageRef,
   setState,
-  selectedProps
+  selectedProps,
+  optionsState,
+  setOptionsState
 ) => {
+  if (optionsState) {
+    setOptionsState(false);
+  }
   if (state == "text") {
     setShapes((prevShapes) => {
       return [

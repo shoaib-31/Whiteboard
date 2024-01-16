@@ -22,6 +22,14 @@ export const shapesState = atom({
   default: [],
   dangerouslyAllowMutability: true,
 });
+export const optionsState = atom({
+  key: "optionsState",
+  default: false,
+});
+export const collabModalState = atom({
+  key: "CollabModalState",
+  default: false,
+});
 export const propsState = atom({
   key: "propsState",
   default: {

@@ -438,7 +438,7 @@ const Main = styled.div`
   position: fixed;
   left: 1rem;
   width: fit-content;
-  top: ${() => window.innerHeight / 2 - 16 * 16}px;
+  top: 10rem;
   height: fit-content;
   z-index: 10;
   border-radius: 10px;
