@@ -14,8 +14,23 @@ function Room() {
   const { roomId } = useParams();
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
   const wsUrl = `${wsProtocol}://${import.meta.env.VITE_HOST}:${
-    import.meta.env.VITE_PORT
+    import.meta.env.VITE_SERVER_PORT
   }`;
+
+  //FUNCTIONS
+
+  const handleShapeChangeDebounced = () => {
+    if (socket && !incomingShapesRef.current) {
+      console.log("WebSocket message sent:", shapes);
+      socket.send(
+        JSON.stringify({ type: "UPDATE_SHAPE", payload: { roomId, shapes } })
+      );
+    } else {
+      incomingShapesRef.current = false;
+    }
+  };
+  //USEEFFECTS
+
   useEffect(() => {
     if (!socket) {
       const newSocket = new WebSocket(wsUrl);
@@ -26,7 +41,16 @@ function Room() {
       socket.addEventListener("open", () => {
         console.log("WebSocket connection opened");
         console.log(roomId);
-        socket.send(JSON.stringify({ type: "JOIN_ROOM", payload: { roomId } }));
+        const storedShapes = localStorage.getItem("shapes");
+        if (storedShapes) {
+          setShapes(JSON.parse(storedShapes));
+        }
+        socket.send(
+          JSON.stringify({
+            type: "JOIN_ROOM",
+            payload: { roomId, shapes: storedShapes },
+          })
+        );
       });
 
       socket.addEventListener("message", async (event) => {
@@ -49,21 +73,11 @@ function Room() {
     };
   }, [socket, wsUrl]);
 
-  const handleShapeChangeDebounced = () => {
-    if (socket && !incomingShapesRef.current) {
-      console.log("WebSocket message sent:", shapes);
-      socket.send(
-        JSON.stringify({ type: "UPDATE_SHAPE", payload: { roomId, shapes } })
-      );
-    } else {
-      incomingShapesRef.current = false;
-    }
-  };
-
   useEffect(() => {
     console.log("shape changed", shapes);
+    localStorage.setItem("shapes", JSON.stringify(shapes));
     handleShapeChangeDebounced(shapes);
-  }, [shapes]);
+  }, [shapes, setShapes]);
 
   return (
     <>

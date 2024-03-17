@@ -90,7 +90,7 @@ const List = styled.div`
   z-index: 10;
   width: 10rem;
   background-color: white;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 0.8rem;
   border: 1px solid #e6e6e6;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -98,7 +98,7 @@ const List = styled.div`
   padding: 0.5rem;
 `;
 const Item = styled.div`
-  border-radius: 4px;
+  border-radius: 8px;
   padding: 0.5rem;
   font-weight: 500;
   display: flex;

@@ -5,9 +5,7 @@ import { useState } from "react";
 
 const Clipboard = ({ roomId }) => {
   const [copied, setCopied] = useState(false);
-  const url = `http://${import.meta.env.VITE_HOST}:${
-    import.meta.env.VITE_SERVER_PORT
-  }/${roomId}`;
+  const url = `http://${import.meta.env.VITE_HOST}:5173/${roomId}`;
   const copyToClipboard = () => {
     navigator.clipboard.writeText(url);
   };

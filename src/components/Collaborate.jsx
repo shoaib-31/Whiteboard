@@ -3,7 +3,9 @@ import CollaborateImg from "/collaborate.png";
 import { useState } from "react";
 import Preloader from "/Preloader.gif";
 import Clipboard from "./Clipboard";
+import { useNavigate } from "react-router-dom";
 const Collaborate = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [roomId, setRoomId] = useState(null);
   const handleClick = async () => {
@@ -15,7 +17,8 @@ const Collaborate = () => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      setRoomId(data.roomId);
+      setRoomId(() => data.roomId);
+      navigate(`/${data.roomId}`);
     } catch (error) {
       console.error("Error during fetch:", error.message);
     } finally {
